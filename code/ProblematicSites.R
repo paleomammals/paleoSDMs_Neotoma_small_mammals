@@ -19,22 +19,25 @@ vertDownloads_orig <- vertDownloads # save the in case you need to recover it la
 # vertDownloads <- vertDownloads_orig
 
 #### NOTE: problematic sites
-# There are three problematic sites, so the script breaks on these sites
-# siteid                     sitename      lat      long altitude
-# 4951 Chief Joseph Dam Site 45OK18 48.00000 -119.3667      691
-# 5700          Calf Island [19SU8] 42.36667  -71.0000        0
-# 21496           Lost Chicken Creek 64.05333 -141.8767      549
-# For the saved objects above, this filter works,but check to see if order changed with a new download
-focalSites <- vertDownloads[c(1418, 2160, 3812)] # these are deleted because they have issues
+# There are three (edit - 6!) problematic sites, so the script breaks on these sites
+# siteid                     sitename      lat       long altitude
+# 4951 Chief Joseph Dam Site 45OK18 48.00000 -119.36667      691
+# 5700          Calf Island [19SU8] 42.36667  -71.00000        0
+# 21496           Lost Chicken Creek 64.05333 -141.87667      549
+# 23548       Ester Creek [AKFAI-VP] 64.84000 -147.95528      163
+# 30405               Coxcatlan Cave 18.26722  -97.14917     1168
+# 3687     Rattlesnake Cave [40434] 29.25000 -100.36667      332
+
+# Let's examine the sites individually
+focalSites <- vertDownloads[c(1418, 2160, 3812, 4340, 4625, 161)] # these are deleted because they have issues
 
 focalSites_coords <- coordinates(focalSites)
 
 # figure out where the error is
-# find all datasets that have a new Syverson Blois bounds chronology
-
-datasetSamples <- data.frame() # create blank samples list for the dataset
 
 # site notes  ----
+# Note - I commented out the i loop and just set i equal to each site download object in turn, then diagnosed what the issue is.
+
 i <- 1 # Chief Joseph Dam Site 45OK18
 # one site, one collunit, one dataset
 # three chrons: FAUNMAP1.1, two Syverson-Blois.
@@ -52,7 +55,6 @@ i <- 1 # Chief Joseph Dam Site 45OK18
 # 3   NA Calibrated radiocarbon years BP     6000       3967        48158  Syverson-Blois: event # incorrect ages?
 # 4   NA            Radiocarbon years BP     3512       2000         3625            FAUNMAP 1.1
 # 5 3374 Calibrated radiocarbon years BP     4144       2674        48158  Syverson-Blois: event
-
 
 i <- 2 # "Calf Island [19SU8]"
 # one site, one collunit, one dataset
@@ -110,7 +112,26 @@ i <- 3 # "Lost Chicken Creek"
 # I created a fix by 1) specifying there should only be one 'bounds' chron, not >0, then 2) adding a flag if it's encountered in other sites
 # I should go back to the original code and re-run, to see if it affects other sites.  
 
-for (i in 1:length(focalSites)){
+i <- 4
+# this site has a chronology issue with m=4
+ 
+i <- 5
+# this site has a chronology issue with m=4
+
+i<- 6 # "Rattlesnake Cave [40434]"
+# one site, one collunit, one dataset
+# three chrons associated with the collunit: FAUNMAP 1.1, two Syverson-Blois bounds
+# 4 samples
+# samples m=1, 2, 3, two event chrons, no bounds chron
+# sample m = 4, one faunmap 1.1 chron, one bounds chron, one event chron
+
+
+# primary loop for associating samples with chrons 
+
+# find all datasets that have a new Syverson Blois bounds chronology
+datasetSamples <- data.frame() # create blank samples list for the dataset
+
+# for (i in 1:length(focalSites)){
 
   # pull out relevant site metadata
   sitename <- focalSites[[i]]@sitename
@@ -140,6 +161,7 @@ for (i in 1:length(focalSites)){
         # find the vertebrate fauna data
         sampObject <- focalSites[[i]]@collunits[[j]]@datasets[[k]]@samples[[m]] # isolate a single sample
         
+        # this flags a site if there is more than one Bounds chronology
         if (length(which(sampObject@ages$chronologyname == "Syverson-Blois: bounds")) > 1){
           cat("site = ", i, "; sample m = ", m, "; More than one bounds chron", fill=T)
         }

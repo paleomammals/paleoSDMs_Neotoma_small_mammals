@@ -25,13 +25,10 @@ vertDownloads_orig <- vertDownloads # save the in case you need to recover it la
 # vertDownloads <- vertDownloads_orig
 
 #### NOTE: problematic sites
-# There are three problematic sites, so the script breaks on these sites
-# siteid                     sitename      lat      long altitude
-# 4951 Chief Joseph Dam Site 45OK18 48.00000 -119.3667      691
-# 5700          Calf Island [19SU8] 42.36667  -71.0000        0
-# 21496           Lost Chicken Creek 64.05333 -141.8767      549
-# For the saved objects above, this filter works,but check to see if order changed with a new download
-vertDownloads <- vertDownloads[-c(1418, 2160, 3812)] # these are deleted because they have issues
+# There are six problematic sites. The script will not break on these sites, 
+# but they have some issues with repeated or potentially missing chronologies.
+# See the script 'ProblematicSites.R' for more details.
+# I have re-run the script (2/2/2026) with a fix that skips the samples that don't have only one bounds chron
 
 vertDownloads_coords <- coordinates(vertDownloads)
 
@@ -40,7 +37,7 @@ vertDownloads_coords <- coordinates(vertDownloads)
 
 datasetSamples <- data.frame() # create blank samples list for the dataset
 
-for (i in 2161:length(vertDownloads)){
+for (i in 1:length(vertDownloads)){
   
   # pull out relevant site metadata
   sitename <- vertDownloads[[i]]@sitename
@@ -70,8 +67,13 @@ for (i in 2161:length(vertDownloads)){
         # find the vertebrate fauna data
         sampObject <- vertDownloads[[i]]@collunits[[j]]@datasets[[k]]@samples[[m]] # isolate a single sample
         
-        # only do the following if there is a new Syverson-Blois chronology. 
-        if (length(which(sampObject@ages$chronologyname == "Syverson-Blois: bounds")) > 0){
+        # this flags a site if there is more than one Bounds chronology
+        if (length(which(sampObject@ages$chronologyname == "Syverson-Blois: bounds")) > 1){ 
+          cat("site = ", i, "; sample m = ", m, "; More than one bounds chron", fill=T)
+        }
+        
+        # only do the following if there is exactly one Syverson-Blois bounds chronology for a sample. 
+        if (length(which(sampObject@ages$chronologyname == "Syverson-Blois: bounds")) ==1){
           
           sampDF <- do.call(cbind, lapply(sampObject@datum, as.data.frame)) # convert the NISP/MNI/PA data to a table
           colnames(sampDF) <- names(sampObject@datum) # rename the dataframe
