@@ -143,9 +143,4 @@ dfs_unique_clean <- cbind(dfs_unique,
 dfs_unique_clean <- dfs_unique_clean %>%
   filter(!is.na(genus)) 
 
-write.csv(dfs_unique_clean, file = "output/Neotoma_small_mammals_cleaned.csv", row.names=F)
-
-
-
-
-
+write.csv(dfs_unique_clean, file = "output/Neotoma_small_mammals_cleaned-v2.csv", row.names=F)
