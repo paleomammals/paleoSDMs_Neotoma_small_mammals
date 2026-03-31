@@ -1,4 +1,7 @@
 # This script is for retrieving and arranging small mammal data from Neotoma, for the paleoSDMs project
+# Not, this just retrieves the samples, and is not the final script.
+# Also, it's been updated to call a function. 
+# See instead the script: Neotoma_small_mammal_Retrieve_samples_script.R
 
 # 0. Setup ----
 # install.packages('neotoma2')
@@ -31,6 +34,9 @@ vertDownloads_orig <- vertDownloads # save the in case you need to recover it la
 # 21496           Lost Chicken Creek 64.05333 -141.8767      549
 # For the saved objects above, this filter works,but check to see if order changed with a new download
 vertDownloads <- vertDownloads[-c(1418, 2160, 3812)] # these are deleted because they have issues
+
+
+
 
 vertDownloads_coords <- coordinates(vertDownloads)
 
